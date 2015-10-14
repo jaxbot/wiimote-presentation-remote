@@ -1,0 +1,35 @@
+<html>
+<body>
+<div id="box" style="display:block;width:100px;height:100px;background:url(wii.png);position:absolute;background-repeat:no-repeat;"></div>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+var box = document.getElementById("box");
+var socket = io();
+var datasetX = [];
+var datasetY = [];
+socket.on('data', function(data) {
+		if (data[0] == "/wii/button/b") {
+			if (data[1] == 1) {
+				box.style.display = "block";
+			} else {
+				box.style.display = "none";
+			}
+		}
+		if (data[0] == "/wii/acc") {
+			datasetY.push(data[2]);
+			datasetX.push(data[1]);
+		var x = datasetX.reduce(function(a,b) { return a + b; }) / datasetX.length;
+		var y = datasetY.reduce(function(a,b) { return a + b; }) / datasetY.length;
+
+		box.style.top = ((y - 200) / 100) * document.body.offsetHeight + "px";
+		box.style.left = (x - 200) / 100 * document.body.offsetWidth + "px";
+
+		if (datasetX.length > 10) {
+			datasetY.shift();
+			datasetX.shift();
+		}
+		}
+});
+</script>
+</body>
+</html>
